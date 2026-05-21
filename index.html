@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 9 — Input/Output Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e0c;
+    --surface: #1a1815;
+    --surface2: #232018;
+    --border: #2e2a22;
+    --gold: #c9a84c;
+    --gold-light: #e2c97e;
+    --amber: #d97706;
+    --cream: #f0e6d0;
+    --muted: #8a7d6a;
+    --text: #e8dcc8;
+    --green: #4a9e6e;
+    --red: #c05252;
+    --blue: #5a8db8;
+    --purple: #8b6db8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', serif;
+    font-size: 16px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(201,168,76,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(90,141,184,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  .hero {
+    text-align: center;
+    padding: 64px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .hero-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 span { color: var(--gold); }
+  .hero-sub {
+    margin-top: 16px;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 15px;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 48px;
+  }
+  .toc h2 {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .toc ol { padding-left: 20px; }
+  .toc li { margin: 6px 0; }
+  .toc a { color: var(--text); text-decoration: none; transition: color 0.2s; }
+  .toc a:hover { color: var(--gold-light); }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+  }
+
+  /* ── SUB-SECTION ── */
+  .sub {
+    margin-bottom: 32px;
+  }
+  .sub h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 12px;
+    padding-left: 12px;
+    border-left: 2px solid var(--amber);
+  }
+  .sub h4 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cream);
+    margin: 24px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  p { margin-bottom: 16px; color: var(--text); }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .card-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .card p { font-size: 14px; color: var(--text); margin: 0; }
+
+  /* ── CALLOUT BOXES ── */
+  .callout {
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-size: 14.5px;
+  }
+  .callout-analogy {
+    background: rgba(201,168,76,0.07);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-left: 4px solid var(--gold);
+  }
+  .callout-example {
+    background: rgba(74,158,110,0.07);
+    border: 1px solid rgba(74,158,110,0.3);
+    border-left: 4px solid var(--green);
+  }
+  .callout-warning {
+    background: rgba(192,82,82,0.07);
+    border: 1px solid rgba(192,82,82,0.3);
+    border-left: 4px solid var(--red);
+  }
+  .callout-info {
+    background: rgba(90,141,184,0.07);
+    border: 1px solid rgba(90,141,184,0.3);
+    border-left: 4px solid var(--blue);
+  }
+  .callout-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .callout-analogy .callout-label { color: var(--gold); }
+  .callout-example .callout-label { color: var(--green); }
+  .callout-warning .callout-label { color: var(--red); }
+  .callout-info .callout-label { color: var(--blue); }
+
+  /* ── LISTS ── */
+  ul.points, ol.points {
+    padding-left: 20px;
+    margin: 12px 0 20px;
+  }
+  ul.points li, ol.points li {
+    margin: 10px 0;
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.65;
+  }
+  ul.points li::marker { color: var(--gold); }
+  ol.points li::marker { color: var(--gold); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+  .flow-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    min-width: 120px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--cream);
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .flow-step.highlight { border-color: var(--gold); background: rgba(201,168,76,0.08); }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--gold);
+    font-size: 20px;
+    padding: 0 6px;
+  }
+
+  /* ── PRIORITY TABLE ── */
+  .priority-row { display: flex; gap: 0; margin: 4px 0; }
+  .priority-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    width: 80px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+  .priority-bar {
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 12px;
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  /* ── KEY TERMS ── */
+  .terms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .term {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .term-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .term-def { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  /* ── EXAM TIPS ── */
+  .exam-tip {
+    background: rgba(139,109,184,0.1);
+    border: 1px solid rgba(139,109,184,0.35);
+    border-left: 4px solid var(--purple);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    font-size: 14px;
+  }
+  .exam-tip strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--purple);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  /* ── COMPARISON ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  @media (max-width: 600px) {
+    .compare { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+  .compare-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .compare-col.vs-a { border-top: 3px solid var(--green); }
+  .compare-col.vs-b { border-top: 3px solid var(--red); }
+  .compare-col h4 { 
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .vs-a h4 { color: var(--green); }
+  .vs-b h4 { color: var(--red); }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: rgba(201,168,76,0.12);
+    color: var(--gold-light);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-right: 6px;
+    font-weight: 600;
+  }
+  .badge-slow { background: rgba(192,82,82,0.2); color: var(--red); border: 1px solid rgba(192,82,82,0.4); }
+  .badge-fast { background: rgba(74,158,110,0.2); color: var(--green); border: 1px solid rgba(74,158,110,0.4); }
+  .badge-medium { background: rgba(201,168,76,0.2); color: var(--gold); border: 1px solid rgba(201,168,76,0.4); }
+  .badge-block { background: rgba(90,141,184,0.2); color: var(--blue); border: 1px solid rgba(90,141,184,0.4); }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<div class="hero">
+  <div class="hero-label">Englander · Computer Hardware, 5th Ed.</div>
+  <h1>Chapter 9 <span>Input/Output</span></h1>
+  <p class="hero-sub">Complete Exam Preparation — All Concepts, Examples & Analogies (Enhanced with Explanations)</p>
+</div>
+
+<div class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#intro">9.0 Introduction & Why I/O Matters</a></li>
+    <li><a href="#devices">9.1 Characteristics of Typical I/O Devices</a></li>
+    <li><a href="#pio">9.2 Programmed I/O</a></li>
+    <li><a href="#interrupts">9.3 Interrupts — Full Coverage</a></li>
+    <li><a href="#dma">9.4 Direct Memory Access (DMA)</a></li>
+    <li><a href="#controllers">9.5 I/O Controllers</a></li>
+    <li><a href="#terms">Key Terms Glossary</a></li>
+    <li><a href="#exam">Exam Quick-Fire Review</a></li>
+  </ol>
+</div>
+
+<div class="section" id="intro">
+  <div class="section-header">
+    <span class="section-num">9.0</span>
+    <h2>Introduction — Why I/O Matters</h2>
+  </div>
+
+  <p>When you buy a computer, you probably look at how fast the CPU is. But no matter how powerful the CPU is, the computer is totally useless without Input/Output (I/O). If you can't get data into the computer (keyboard, mouse, network) and you can't see the results (screen, printer, disk), the CPU is just doing math in the dark.</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">🔑 Core Problem</div>
+      <p>The CPU is incredibly fast, processing billions of operations a second. I/O devices, however, are slow because they often rely on physical mechanics (like a user typing or a disk spinning). The big challenge in computer architecture is keeping the lightning-fast CPU from constantly pausing to wait on slow I/O devices.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🔑 The Real Bottleneck</div>
+      <p>For most modern programs—like web browsing, playing videos, or running a business database—the CPU spends very little time actually "thinking". The dominant factor holding back performance is how quickly data can be fetched from the hard drive or network. I/O, not CPU speed, is the real bottleneck.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-analogy">
+    <div class="callout-label">📖 Little Man Computer Analogy</div>
+    Think back to the Little Man Computer (LMC) model. The "In" and "Out" baskets were the I/O system. The Little Man could only take one 3-digit number at a time, requiring a specific instruction just to grab that one number. Early computers worked exactly like this, but as data demands grew (imagine reading a 4-gigabyte movie one number at a time), we had to invent faster I/O methods like DMA.
+  </div>
+</div>
+
+<div class="section" id="devices">
+  <div class="section-header">
+    <span class="section-num">9.1</span>
+    <h2>Characteristics of Typical I/O Devices</h2>
+  </div>
+
+  <p>To design a good I/O system, engineers first had to look at what different devices actually demand. A keyboard and a graphics card behave entirely differently and require different management from the CPU.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Device</th>
+          <th>In/Out</th>
+          <th>Data Rate</th>
+          <th>Transfer Mode</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Keyboard / Mouse</td>
+          <td>Input</td>
+          <td><span class="badge badge-slow">Very Low</span></td>
+          <td>Character (One by one)</td>
+        </tr>
+        <tr>
+          <td>Printer</td>
+          <td>Output</td>
+          <td><span class="badge badge-slow">Low–Medium</span></td>
+          <td>Block burst</td>
+        </tr>
+        <tr>
+          <td>Magnetic Disk / SSD</td>
+          <td>Storage</td>
+          <td><span class="badge badge-medium">Medium–High</span></td>
+          <td>Block burst</td>
+        </tr>
+        <tr>
+          <td>Graphics Display</td>
+          <td>Output</td>
+          <td><span class="badge badge-fast">High</span></td>
+          <td>Steady stream</td>
+        </tr>
+        <tr>
+          <td>Network / USB</td>
+          <td>Both</td>
+          <td><span class="badge badge-fast">High–Very High</span></td>
+          <td>Block burst</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sub">
+    <h3>Why Device Differences Matter</h3>
+
+    <h4>1. Expected vs. Unexpected Input (Keyboards & Mice)</h4>
+    <p>Sometimes a program explicitly waits for you to type something, like entering your password. This is "expected input." However, if a program freezes and you hit `Ctrl+Alt+Delete` to force close it, the CPU was <em>not</em> expecting that. Because devices like keyboards and mice frequently generate <strong>unexpected input</strong>, the I/O system must have a way to interrupt whatever the CPU is currently doing to pay attention immediately.</p>
+
+    <h4>2. Stream vs. Burst (Displays vs. Printers)</h4>
+    <p>A printer accepts data in chunks (blocks), prints a page, and if the data stops coming, it just waits patiently. A computer monitor playing a 60fps video is different. It requires a <strong>continuous, steady stream</strong> of heavy data. If the data stops for even a millisecond, the screen flickers or the video stutters. The I/O system has to prioritize steady stream devices differently than burst devices.</p>
+
+    <h4>3. Blocks vs. Characters (Disks vs. Keyboards)</h4>
+    <p>When you press the letter "A" on a keyboard, a single character (usually 1 byte) is sent to the CPU. Hard drives and SSDs never do this. If you want to change one single letter in a text document saved on a drive, the computer must read an entire <em>block</em> of data (often 4,000+ bytes), change the one letter in memory, and write the whole massive block back. Disks transfer massive bursts of block data.</p>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-label">💡 The Role of Buffers</div>
+    Because a CPU is so fast and a printer is so slow, if they talked directly, the CPU would have to drastically slow down to match the printer's speed. Instead, we use a <strong>buffer</strong>—a temporary holding area. The CPU blasts the data into the buffer instantly, then goes back to doing other work. The printer then slowly pulls the data out of the buffer at its own pace. Think of it like a water tower: the pump fills it up fast, and houses drain it slowly over time.
+  </div>
+</div>
+
+<div class="section" id="pio">
+  <div class="section-header">
+    <span class="section-num">9.2</span>
+    <h2>Programmed I/O</h2>
+  </div>
+
+  <p>Programmed I/O is the oldest and simplest way a computer communicates with a device. In this method, the CPU is the sole worker. It manually handles every single piece of data, moving it step-by-step from the device, into its own registers, and then into memory. <strong>It requires a full instruction to execute for every single piece of data transferred.</strong></p>
+
+  <div class="sub">
+    <h3>How It Works — Step by Step</h3>
+    <div class="flow">
+      <div class="flow-step highlight">1. CPU executes INPUT instruction<br><small>Address = Device #24</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">2. Address goes to I/O Address Register</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">3. Keyboard Controller responds</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">4. Keystroke data placed in I/O Data Register</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">5. Copied to CPU accumulator</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>The "Teaspoon" Analogy</h3>
+    <p>Imagine you have to move a giant pile of sand (a file on a hard drive) from the yard (the disk) into a sandbox (the RAM). Programmed I/O is like using a teaspoon to move the sand.</p>
+    <p>The CPU takes a teaspoon of sand (one byte), walks it over, drops it in the sandbox, goes back, and repeats this millions of times. While the CPU is doing this, it is 100% occupied. It cannot run your video game, play music, or check for network messages. It is totally locked into this tedious task.</p>
+  </div>
+
+  <div class="compare">
+    <div class="compare-col vs-a">
+      <h4>✅ When is Programmed I/O Good?</h4>
+      <p>It is perfectly fine for slow, low-volume devices like keyboards. Since humans type slowly (maybe a few characters a second), moving one "teaspoon" of data every so often doesn't burden the CPU at all. It is also used to send short command instructions to initialize hardware.</p>
+    </div>
+    <div class="compare-col vs-b">
+      <h4>❌ When is it Terrible?</h4>
+      <p>It is unusable for transferring files from a hard drive or feeding graphics to a monitor. Moving megabytes of data one word at a time would bring the entire computer to a crawling halt. For these, we must use DMA (covered in 9.4).</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="interrupts">
+  <div class="section-header">
+    <span class="section-num">9.3</span>
+    <h2>Interrupts</h2>
+  </div>
+
+  <p>If Programmed I/O is bad for unexpected events, how does the CPU know when something happens? It uses <strong>Interrupts</strong>. An interrupt is literally an electronic signal sent on a physical wire to the CPU, telling it: <em>"Stop what you are doing right now, save your place, and pay attention to me!"</em></p>
+
+  <div class="callout callout-analogy">
+    <div class="callout-label">🎓 Classroom Analogy</div>
+    Imagine you are a teacher giving a lecture to a class (the CPU executing a program). A student raises their hand and interrupts with a question. You don't abandon the whole lecture; you <em>hold your thought</em>, answer the student's question (handle the interrupt), and then resume your lecture exactly where you left off. This is how normal hardware interrupts work.
+  </div>
+
+  <div class="sub">
+    <h3>The Concept of "Context"</h3>
+    <p>When the CPU is interrupted, it has to remember exactly what it was doing so it can go back to it later. It does this by saving its <strong>Context</strong>. The context consists of all the current values in the CPU's registers, and most importantly, the Program Counter (which tracks the next instruction). It saves this context to a special area in memory (a Stack or a Process Control Block), runs the <strong>Interrupt Service Routine (ISR)</strong> to handle the hardware request, and then restores the context to resume normal operations.</p>
+  </div>
+
+  <div class="sub">
+    <h3>The 4 Major Uses of Interrupts</h3>
+    <p>Interrupts aren't just for typing on a keyboard. The entire operating system relies on them for four main purposes:</p>
+    
+    <ol class="points">
+      <li><strong>External Event Notifier (Getting Attention):</strong> Instead of the CPU constantly wasting time asking the keyboard "did you press a key? did you press a key?" (a process called <em>polling</em>), the CPU ignores the keyboard until the keyboard fires an interrupt saying "Hey, I have a keystroke!". This saves massive amounts of CPU time.</li>
+      
+      <li><strong>Completion Signal (Done Processing):</strong> When the CPU asks the hard drive to fetch a large file, the hard drive takes a long time to mechanically find it. The CPU goes and works on other programs. When the hard drive finally has the data ready in its buffer, it sends an interrupt: "I'm done, the data is ready."</li>
+      
+      <li><strong>CPU Time Allocation (Multi-tasking):</strong> How can a computer run Discord, Chrome, and Spotify at the same time if it only has one core? The system clock sends an interrupt every few milliseconds. When the interrupt hits, the OS pauses Chrome, gives CPU time to Discord, pauses Discord, gives time to Spotify, and so on. This forced switching happens so fast it looks simultaneous.</li>
+      
+      <li><strong>Abnormal Event Indicator (Crashing Gracefully):</strong> If a program tries to divide a number by zero, or if a user unplugs a USB drive while data is writing, the hardware generates an error interrupt (often called a <em>Trap</em> or <em>Exception</em>). This allows the OS to step in and shut down just that specific program, rather than letting the whole computer crash.</li>
+    </ol>
+  </div>
+
+  <div class="sub">
+    <h3>How to find out who interrupted? (Vectored vs. Polled)</h3>
+    <p>If multiple devices are plugged into the computer, and the CPU receives an interrupt signal, how does it know <em>who</em> sent it?</p>
+    <ul class="points">
+      <li><strong>Vectored Interrupt:</strong> The device sends the interrupt signal *and* attaches a little ID tag (an address) along with it. The CPU looks at the ID tag and immediately knows "Ah, this is the mouse!" and jumps straight to the mouse driver software. This is very fast but requires complex circuitry.</li>
+      <li><strong>Polled Interrupt:</strong> A generic alarm goes off. The CPU doesn't know who did it, so it literally has to go down a line and ask each device: "Was it you? Was it you?" This requires simpler hardware, but it is much slower because of the interrogation process.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="section" id="dma">
+  <div class="section-header">
+    <span class="section-num">9.4</span>
+    <h2>Direct Memory Access (DMA)</h2>
+  </div>
+
+  <p>Remember the "teaspoon" analogy from Programmed I/O? <strong>Direct Memory Access (DMA)</strong> is the dump truck. Because moving data one byte at a time through the CPU is too slow for large files or graphics, engineers created a way for devices to bypass the CPU entirely and write data directly into the system's RAM.</p>
+
+  <div class="sub">
+    <h3>How DMA works (The Dump Truck Analogy)</h3>
+    <p>In DMA, the CPU acts as the supervisor, not the worker. Here is how a file transfer from a hard drive works using DMA:</p>
+    
+    <ol class="points">
+      <li>The CPU uses simple Programmed I/O to send a quick "work order" to the Hard Drive Controller. The order contains 4 things: the memory address to drop the data, where to find it on the disk, how big the file is, and whether to read or write.</li>
+      <li><strong>The CPU steps away.</strong> It goes off to run other programs, completely ignoring the file transfer.</li>
+      <li>The Hard Drive Controller takes over the system bus. It fetches the massive blocks of data and shovels them directly into the RAM (the sandbox).</li>
+      <li>When the Hard Drive Controller is completely finished, it fires a <strong>Completion Interrupt</strong> to tap the CPU on the shoulder, saying "The sand is in the sandbox, boss."</li>
+    </ol>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-label">⚠️ The Danger of DMA</div>
+    Because the CPU is busy doing other things while the hard drive is secretly writing data directly into the RAM, a conflict can happen. If the CPU tries to read that exact same section of RAM before the hard drive is finished, it might read half-old data and half-new data, causing a system crash. The OS must lock that section of memory so the CPU can't touch it until the completion interrupt arrives.
+  </div>
+
+  <div class="sub">
+    <h3>Why Interrupts are Required for DMA</h3>
+    <p>You can clearly see why DMA and Interrupts are a team. Without the completion interrupt at the very end of the process, the CPU would never know when the dump truck finished delivering the data. It would just sit around blindly waiting, totally defeating the purpose of being freed up to do other work!</p>
+  </div>
+</div>
+
+<div class="section" id="controllers">
+  <div class="section-header">
+    <span class="section-num">9.5</span>
+    <h2>I/O Controllers</h2>
+  </div>
+
+  <p>The CPU is a genius mathematician, but it knows absolutely nothing about the physical world. It doesn't know how to spin a magnetic platter, how to squirt ink onto paper, or how to translate color codes into light on an LCD panel. <strong>I/O Controllers</strong> act as the intelligent translators between the CPU's mathematical world and the physical mechanics of the devices.</p>
+
+  <div class="sub">
+    <h3>The Translator's Two Faces</h3>
+    <p>Every I/O Controller (like a Graphics Card or a Network Interface Card) has two distinct interfaces because it is speaking two completely different languages:</p>
+    <ul class="points">
+      <li><strong>The System Side (Talking to the CPU):</strong> On this side, the controller speaks the CPU's language. It connects to the motherboard's bus, accepts memory addresses, reads binary commands, and generates standard interrupt signals.</li>
+      <li><strong>The Device Side (Talking to the Hardware):</strong> On this side, the controller handles the messy physics. If it's a disk controller, it sends electrical voltages to start a physical motor, calculates the exact timing to drop a read/write head onto a spinning magnetic platter, and handles error correction if there's dust on the disk.</li>
+    </ul>
+  </div>
+
+  <div class="sub">
+    <h3>Why We Use Separate Controllers</h3>
+    <p>If we tried to build all this logic directly into the CPU, the CPU would be massive, incredibly expensive, and impossible to upgrade. By separating the logic into dedicated controllers (like buying a separate Nvidia graphics card), we get several benefits:</p>
+    <ol class="points">
+      <li><strong>CPU Freedom:</strong> The CPU passes off complex tasks (like rendering 3D shadows) to the Graphics Controller, freeing itself up to run the game's physics and AI logic.</li>
+      <li><strong>Parallel Operation:</strong> Because every device has its own mini-brain (controller), your computer can download a file from the network, spin the hard drive to save it, and play music out of the speakers, <em>all at the exact same time</em>.</li>
+      <li><strong>Specialization:</strong> Companies can design specialized processors just for graphics (GPUs) or just for network traffic, optimizing them far better than a general CPU ever could.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="terms">
+  <div class="section-header">
+    <span class="section-num">§</span>
+    <h2>Key Terms Glossary</h2>
+  </div>
+  <div class="terms-grid">
+    <div class="term"><div class="term-name">Programmed I/O</div><div class="term-def">CPU transfers data one word at a time under full program control. One instruction per data word.</div></div>
+    <div class="term"><div class="term-name">Interrupt</div><div class="term-def">A signal on a dedicated line (IRQ) that causes the CPU to suspend its current program and jump to an ISR.</div></div>
+    <div class="term"><div class="term-name">Interrupt Service Routine (ISR)</div><div class="term-def">Special program executed when an interrupt fires. Also called interrupt handler, interrupt routine, or device driver.</div></div>
+    <div class="term"><div class="term-name">Context</div><div class="term-def">All register values and the PC that define a program's current state. Saved on interrupt, restored on return.</div></div>
+    <div class="term"><div class="term-name">Process Control Block (PCB)</div><div class="term-def">Memory area where a program's context is saved during an interrupt.</div></div>
+    <div class="term"><div class="term-name">Polling</div><div class="term-def">CPU continuously checks a device in a loop to see if it needs attention. Wastes CPU cycles. Inferior to interrupts.</div></div>
+    <div class="term"><div class="term-name">Vectored Interrupt</div><div class="term-def">Interrupt includes the device's address. CPU jumps directly to the correct ISR. Faster but needs more hardware.</div></div>
+    <div class="term"><div class="term-name">Polled Interrupt</div><div class="term-def">General interrupt fires; CPU polls each device to find which one triggered it. Slower, simpler hardware.</div></div>
+    <div class="term"><div class="term-name">Trap / Exception</div><div class="term-def">An interrupt generated internally by the CPU (illegal instruction, divide-by-zero, memory error).</div></div>
+    <div class="term"><div class="term-name">DMA (Direct Memory Access)</div><div class="term-def">Transfer of block data directly between I/O controller and memory, bypassing the CPU during transfer.</div></div>
+    <div class="term"><div class="term-name">Buffer</div><div class="term-def">Temporary storage that absorbs the speed difference between two components (like a water reservoir).</div></div>
+    <div class="term"><div class="term-name">Device Controller</div><div class="term-def">I/O controller dedicated to one type of device (disk controller, NIC, graphics card). Has two interfaces: CPU-side and device-side.</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" id="exam">
+  <div class="section-header">
+    <span class="section-num">★</span>
+    <h2>Exam Quick-Fire Review</h2>
+  </div>
+
+  <div class="sub">
+    <h3>The 3 I/O Methods — Head-to-Head</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Programmed I/O</th>
+            <th>Interrupt-Driven</th>
+            <th>DMA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Transfer unit</td>
+            <td>One word at a time</td>
+            <td>One word at a time</td>
+            <td>Full block</td>
+          </tr>
+          <tr>
+            <td>CPU involvement</td>
+            <td>100% — CPU does everything</td>
+            <td>CPU handles each word via ISR</td>
+            <td>Only setup + completion</td>
+          </tr>
+          <tr>
+            <td>CPU during transfer</td>
+            <td>Fully occupied</td>
+            <td>Other work between interrupts</td>
+            <td>Completely free</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>Slow character devices</td>
+            <td>Keyboards, mice, events</td>
+            <td>Disks, video, high-speed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3>Likely Exam Questions & Answers</h3>
+
+    <div class="exam-tip">
+      <strong>Q: Why is polling inefficient?</strong>
+      Polling forces the CPU to continuously loop-check a device, wasting millions of CPU cycles doing nothing useful. Interrupts let the CPU do real work and only react when the device actually needs attention.
+    </div>
+
+    <div class="exam-tip">
+      <strong>Q: What is a context, what does it contain, and why is it saved?</strong>
+      Context = the complete state of a program: all register values + the program counter (PC). Saved to the stack or PCB when an interrupt occurs. Restored when the ISR finishes — so the original program resumes exactly as if nothing happened.
+    </div>
+
+    <div class="exam-tip">
+      <strong>Q: Why would DMA be useless without interrupt capability?</strong>
+      Without a completion interrupt, the CPU has no reliable way to know when the DMA transfer is finished. It would have to poll the controller (inefficient), or wait blindly. The whole benefit of DMA — CPU freedom during transfer — depends on the completion interrupt to signal when data is safely in memory.
+    </div>
+
+  </div>
+</div>
+
+</div></body>
+</html>
